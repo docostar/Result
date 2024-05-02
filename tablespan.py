@@ -4,7 +4,7 @@ pdf = FPDF()
 pdf.add_page()
 pdf.set_font("Times", size=16)
 
-with pdf.table() as table:
+with pdf.table(col_widths=(1, 2, 1, 1)) as table:
     row = table.row()
     row.cell("0")
     row.cell("1")
@@ -14,13 +14,13 @@ with pdf.table() as table:
     row = table.row()
     row.cell("A1")
     row.cell("A2", colspan=2)
-    
+    row.cell("A4", rowspan=2)
 
     row = table.row()
     row.cell("B1", colspan=2)
     row.cell("B3")
-    row.cell("A4")
-
+    #row.cell("B4")
+'''
 with pdf.table(text_align="CENTER") as table:
     row = table.row()
     row.cell("A1", colspan=2, rowspan=3)
@@ -47,5 +47,5 @@ with pdf.table(text_align="CENTER") as table:
 
     row = table.row()
     row.cell("A7")
-
+'''
 pdf.output('table3.pdf')
