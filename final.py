@@ -1,9 +1,19 @@
+import openpyxl
+
 subject = ['English','English Gramer', 'Mathemetics','Science','General Knowledge', 'Moral Science', 'Computer', 'Gujarati','Hindi','social Science', 'Sanskrit','Drawing','P.T.']
 name_size=10
 subject_size=9
 font_size=8
 reopen_date="13-06-2024"
 issue_date="04-05-2024"
+
+file_Name = "marks_7.xlsx"
+ 
+# To open the workbook 
+# workbook object is created
+wb = openpyxl.load_workbook(file_Name)
+#which sheet
+ws = wb["Sheet1"]
 
 from fpdf import FPDF
 class PDF(FPDF):
@@ -43,76 +53,81 @@ class PDF(FPDF):
     
 
 # Instantiation of inherited class
-pdf = PDF(orientation="L",format="A4")
-pdf.add_page()
-
-
-
-pdf.ln(5)
-
-with pdf.table() as table:
-    pdf.set_font("helvetica", "B", name_size)
-    row = table.row()
-    row.cell("Name")
-    row.cell("<<Name>>",colspan=5)
+def result_pdf(pdf,data):
+    pdf.add_page()
+    pdf.ln(5)
+    with pdf.table() as table:
+        pdf.set_font("helvetica", "B", name_size)
+        row = table.row()
+        row.cell("Name")
+        row.cell(data["name"],colspan=5)
     
-    row = table.row()
-    row.cell("Standard:")
-    row.cell("<<std>>")
-    row.cell("GR NO:")
-    row.cell("<<grno>>")
-    row.cell("Roll No:")
-    row.cell("<<rollno>>")
+        row = table.row()
+        row.cell("Standard:")
+        row.cell("<<std>>")
+        row.cell("GR NO:")
+        row.cell(data["grno"])
+        row.cell("Roll No:")
+        row.cell("<<rollno>>")
 
+    pdf.set_font("helvetica", "B", subject_size)
+    with pdf.table() as table:
+        row = table.row()
 
+        row = table.row()
+        row.cell("Subject", rowspan=2,align="C")
+        row.cell("Semester-1",align="C")
+        row.cell("Semester-2",align="C")
+        row.cell("Annual",colspan=2,align="C")
+        
+        row = table.row()
+        row.cell("Marks(100)",align="C")
+        row.cell("Marks(100)",align="C")
+        row.cell("Marks(200)",align="C")
+        row.cell("Grade(Sem1+Sem2)",align="C")
 
-pdf.set_font("helvetica", "B", subject_size)
-with pdf.table() as table:
-    row = table.row()
-
-    row = table.row()
-    row.cell("Subject", rowspan=2,align="C")
-    row.cell("Semester-1",align="C")
-    row.cell("Semester-2",align="C")
-    row.cell("Annual",colspan=2,align="C")
+        for sub in subject:
+            row = table.row()
+            pdf.set_font("helvetica", "B", subject_size)
+            row.cell(sub)
+            pdf.set_font("helvetica", "", font_size)
+            row.cell("<<eng_sem1>>",align="C")
+            row.cell("<<eng_sem2>>",align="C")
+            row.cell("<<Annual>>",align="C")
+            row.cell("<<grade1>>",align="C")
     
-    row = table.row()
-    row.cell("Marks(100)",align="C")
-    row.cell("Marks(100)",align="C")
-    row.cell("Marks(200)",align="C")
-    row.cell("Grade(Sem1+Sem2)",align="C")
-
-    for sub in subject:
         row = table.row()
         pdf.set_font("helvetica", "B", subject_size)
-        row.cell(sub)
-        pdf.set_font("helvetica", "", font_size)
-        row.cell("<<eng_sem1>>",align="C")
-        row.cell("<<eng_sem2>>",align="C")
-        row.cell("<<Annual>>",align="C")
-        row.cell("<<grade1>>",align="C")
+        row.cell("Obtained Total Marks & Overall Grade :",align="L",colspan=3)
+        row.cell("<<Total>>",align="C")
+        row.cell("<<Grade>>",align="C")
+        row = table.row()
+        row.cell("Obtained Percentage :",align="L",colspan=4)
+        row.cell("<<per>>",align="C")
     
-    row = table.row()
-    pdf.set_font("helvetica", "B", subject_size)
-    row.cell("Obtained Total Marks & Overall Grade :",align="L",colspan=3)
-    row.cell("<<Total>>",align="C")
-    row.cell("<<Grade>>",align="C")
+        row = table.row()
+        row.cell("Attendance :",align="L")
+        row.cell("«Attend»",align="C")
+        row.cell("Total Working Days :",align="C",colspan=2)
+        row.cell("«day»",align="C")
 
-    row = table.row()
-    row.cell("Obtained Percentage :",align="L",colspan=4)
-    row.cell("<<per>>",align="C")
+        row = table.row()
+        row.cell("Passed and Promoted to next Standard :",align="L",colspan=4)
+        row.cell("",align="C")
+
+        row = table.row()
+        row.cell("Remarks :",align="L",colspan=5)
+
+def fetchData(no):
+    row_no=no+1
+    student_Data={}
+    student_Data['grno']=ws["C"+str(row_no)].value
+    student_Data['name']=ws["D"+str(row_no)].value
     
-    row = table.row()
-    row.cell("Attendance :",align="L")
-    row.cell("«Attend»",align="C")
-    row.cell("Total Working Days :",align="C",colspan=2)
-    row.cell("«day»",align="C")
+    return student_Data
 
-    row = table.row()
-    row.cell("Passed and Promoted to next Standard :",align="L",colspan=4)
-    row.cell("",align="C")
-
-    row = table.row()
-    row.cell("Remarks :",align="L",colspan=5)
-
+pdf = PDF(orientation="L",format="A4")
+no=1
+data=fetchData(no)
+result_pdf(pdf,data)
 pdf.output("result.pdf")
